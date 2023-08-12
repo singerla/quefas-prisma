@@ -9,7 +9,7 @@ async function main() {
 
   const password = await prisma.aspect.create({
     data: {
-      name: 'Password',
+      name: 'password',
     },
   });
 

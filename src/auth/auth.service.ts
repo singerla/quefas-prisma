@@ -1,5 +1,5 @@
 import { PrismaService } from 'nestjs-prisma';
-import { Prisma, User } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import {
   Injectable,
   NotFoundException,
@@ -13,15 +13,21 @@ import { PasswordService } from './password.service';
 import { SignupInput } from './dto/signup.input';
 import { Token } from './models/token.model';
 import { SecurityConfig } from '../common/configs/config.interface';
+import { Quefas } from '../common/quefas';
+import { ElementItem } from '../common/quefas/element';
 
 @Injectable()
 export class AuthService {
+  que: Quefas;
+
   constructor(
     private readonly jwtService: JwtService,
     private readonly prisma: PrismaService,
     private readonly passwordService: PasswordService,
     private readonly configService: ConfigService
-  ) {}
+  ) {
+    this.que = new Quefas(this.prisma);
+  }
 
   async createUser(payload: SignupInput): Promise<Token> {
     const hashedPassword = await this.passwordService.hashPassword(
@@ -29,13 +35,9 @@ export class AuthService {
     );
 
     try {
-      const user = await this.prisma.user.create({
-        data: {
-          ...payload,
-          password: hashedPassword,
-          role: 'USER',
-        },
-      });
+      const user = await this.que.createElement(payload.email, 'User');
+
+      await user.updateParam('password', hashedPassword);
 
       return this.generateTokens({
         userId: user.id,
@@ -52,7 +54,7 @@ export class AuthService {
   }
 
   async login(email: string, password: string): Promise<Token> {
-    const user = await this.prisma.user.findUnique({ where: { email } });
+    const user = await this.que.getElement(email);
 
     if (!user) {
       throw new NotFoundException(`No user found for email: ${email}`);
@@ -60,7 +62,7 @@ export class AuthService {
 
     const passwordValid = await this.passwordService.validatePassword(
       password,
-      user.password
+      user.getParam('password')
     );
 
     if (!passwordValid) {
@@ -72,13 +74,13 @@ export class AuthService {
     });
   }
 
-  validateUser(userId: string): Promise<User> {
-    return this.prisma.user.findUnique({ where: { id: userId } });
+  validateUser(userId: string): Promise<ElementItem> {
+    return this.que.getElementById(userId);
   }
 
-  getUserFromToken(token: string): Promise<User> {
-    const id = this.jwtService.decode(token)['userId'];
-    return this.prisma.user.findUnique({ where: { id } });
+  getUserFromToken(token: string): Promise<ElementItem> {
+    const userId = this.jwtService.decode(token)['userId'];
+    return this.que.getElementById(userId);
   }
 
   generateTokens(payload: { userId: string }): Token {

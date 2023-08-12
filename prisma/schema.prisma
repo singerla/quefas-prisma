@@ -40,17 +40,27 @@ model Aspect {
 }
 
 model Attribute {
-  id          String    @id @default(cuid())
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  name        String    @unique @db.VarChar(255)
-  description String?   @db.Text
-  aspect      Aspect    @relation(fields: [aspectId], references: [id])
+  id          String        @id @default(cuid())
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  name        String?       @unique @db.VarChar(255)
+  description String?       @db.Text
+  aspect      Aspect        @relation(fields: [aspectId], references: [id])
   aspectId    String
-  string      String?   @db.MediumText
+  string      String?       @db.MediumText
   integer     Int?
   json        Json?
+  boolean     Boolean?
+  type        AttributeType @default(String)
   elements    Element[]
+}
+
+enum AttributeType {
+  String
+  Integer
+  Float
+  Json
+  Boolean
 }
 
 model Element {
