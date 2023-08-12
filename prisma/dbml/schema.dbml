@@ -2,32 +2,102 @@
 //// THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 //// ------------------------------------------------------
 
-Table User {
+Table Category {
   id String [pk]
   createdAt DateTime [default: `now()`, not null]
   updatedAt DateTime [not null]
-  email String [unique, not null]
-  password String [not null]
-  firstname String
-  lastname String
-  posts Post [not null]
-  role Role [not null]
+  name String [unique, not null]
+  color String
+  icon String
+  description String
+  aspects Aspect [not null]
+  elements Element [not null]
+  relationTypeLeft RelationType [not null]
+  relationTypeRight RelationType [not null]
 }
 
-Table Post {
+Table Aspect {
   id String [pk]
   createdAt DateTime [default: `now()`, not null]
   updatedAt DateTime [not null]
-  published Boolean [not null]
-  title String [not null]
-  content String
-  author User
-  authorId String
+  name String [unique, not null]
+  color String
+  icon String
+  description String
+  categories Category [not null]
+  attributes Attribute [not null]
 }
 
-Enum Role {
-  ADMIN
-  USER
+Table Attribute {
+  id String [pk]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  name String [unique, not null]
+  description String
+  aspect Aspect [not null]
+  aspectId String [not null]
+  string String
+  integer Int
+  json Json
+  elements Element [not null]
 }
 
-Ref: Post.authorId > User.id
+Table Element {
+  id String [pk]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  name String [unique, not null]
+  params Json
+  category Category [not null]
+  categoryId String [not null]
+  attributes Attribute [not null]
+  relationsLeft Relation [not null]
+  relationsRight Relation [not null]
+}
+
+Table RelationType {
+  id String [pk]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  name String [unique, not null]
+  color String
+  icon String
+  description String
+  params Json
+  categoryLeft Category [not null]
+  categoryLeftId String [not null]
+  categoryRight Category [not null]
+  categoryRightId String [not null]
+}
+
+Table Relation {
+  id String [pk]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  elementLeft Element [not null]
+  elementLeftId String [not null]
+  elementRight Element [not null]
+  elementRightId String [not null]
+}
+
+Table AspectToCategory {
+  aspectsId String [ref: > Aspect.id]
+  categoriesId String [ref: > Category.id]
+}
+
+Table AttributeToElement {
+  elementsId String [ref: > Element.id]
+  attributesId String [ref: > Attribute.id]
+}
+
+Ref: Attribute.aspectId > Aspect.id
+
+Ref: Element.categoryId > Category.id
+
+Ref: RelationType.categoryLeftId > Category.id
+
+Ref: RelationType.categoryRightId > Category.id
+
+Ref: Relation.elementLeftId > Element.id
+
+Ref: Relation.elementRightId > Element.id

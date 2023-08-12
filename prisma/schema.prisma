@@ -1,11 +1,11 @@
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider = "mysql"
+  url      = env("DATABASE_URL_PROJECT")
 }
 
 generator client {
   provider = "prisma-client-js"
-  output   = "prisma-client"
+  // output   = "prisma-client"
   // previewFeatures = []
 }
 
@@ -13,30 +13,80 @@ generator dbml {
   provider = "prisma-dbml-generator"
 }
 
-model User {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  email     String   @unique
-  password  String
-  firstname String?
-  lastname  String?
-  posts     Post[]
-  role      Role
+model Category {
+  id                String         @id @default(cuid())
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  name              String         @unique @db.VarChar(255)
+  color             String?
+  icon              String?
+  description       String?        @db.Text
+  aspects           Aspect[]
+  elements          Element[]
+  relationTypeLeft  RelationType[] @relation(name: "relationTypeLeft")
+  relationTypeRight RelationType[] @relation(name: "relationTypeRight")
 }
 
-model Post {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  published Boolean
-  title     String
-  content   String?
-  author    User?    @relation(fields: [authorId], references: [id])
-  authorId  String?
+model Aspect {
+  id          String      @id @default(cuid())
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  name        String      @unique @db.VarChar(255)
+  color       String?
+  icon        String?
+  description String?     @db.Text
+  categories  Category[]
+  attributes  Attribute[]
 }
 
-enum Role {
-  ADMIN
-  USER
+model Attribute {
+  id          String    @id @default(cuid())
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  name        String    @unique @db.VarChar(255)
+  description String?   @db.Text
+  aspect      Aspect    @relation(fields: [aspectId], references: [id])
+  aspectId    String
+  string      String?   @db.MediumText
+  integer     Int?
+  json        Json?
+  elements    Element[]
+}
+
+model Element {
+  id             String      @id @default(cuid())
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  name           String      @unique @db.VarChar(255)
+  params         Json?
+  category       Category    @relation(fields: [categoryId], references: [id])
+  categoryId     String
+  attributes     Attribute[]
+  relationsLeft  Relation[]  @relation(name: "relationsLeft")
+  relationsRight Relation[]  @relation(name: "relationsRight")
+}
+
+model RelationType {
+  id              String   @id @default(cuid())
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  name            String   @unique @db.VarChar(255)
+  color           String?
+  icon            String?
+  description     String?  @db.Text
+  params          Json?
+  categoryLeft    Category @relation(name: "relationTypeLeft", fields: [categoryLeftId], references: [id])
+  categoryLeftId  String
+  categoryRight   Category @relation(name: "relationTypeRight", fields: [categoryRightId], references: [id])
+  categoryRightId String
+}
+
+model Relation {
+  id             String   @id @default(cuid())
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  elementLeft    Element  @relation(name: "relationsLeft", fields: [elementLeftId], references: [id])
+  elementLeftId  String
+  elementRight   Element  @relation(name: "relationsRight", fields: [elementRightId], references: [id])
+  elementRightId String
 }
