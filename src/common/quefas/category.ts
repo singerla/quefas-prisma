@@ -1,8 +1,8 @@
 import {
+  PrismaClient,
   Category as PrismaCategory,
   Element as PrismaElement,
-} from '.prisma/client';
-import { PrismaClient } from '@prisma/client';
+} from '@quefas/prisma-quefas';
 
 export interface CategoryItem {
   id: string;

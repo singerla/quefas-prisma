@@ -1,5 +1,4 @@
-import { Aspect as PrismaAspect } from '.prisma/client';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Aspect as PrismaAspect } from '@quefas/prisma-quefas';
 
 export interface AspectItem {
   id: string;

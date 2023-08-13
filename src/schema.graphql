@@ -33,16 +33,48 @@ input LoginInput {
 
 type Mutation {
   changePassword(data: ChangePasswordInput!): User!
+  createProject(data: ProjectInput!): Project!
+  dropProject(id: String!): Project!
   login(data: LoginInput!): Auth!
   refreshToken(token: JWT!): Token!
   signup(data: SignupInput!): Auth!
+  updateProject(data: ProjectInput!, id: String!): Project!
   updateUser(data: UpdateUserInput!): User!
 }
 
+"""Project"""
+type Project {
+  color: String
+
+  """Identifies the date and time when the object was created."""
+  createdAt: DateTime!
+  db: String
+  icon: String
+  id: ID!
+  key: String
+  name: String
+  params: String
+  schema: String
+
+  """Identifies the date and time when the object was last updated."""
+  updatedAt: DateTime!
+}
+
+input ProjectInput {
+  color: String
+  db: String!
+  icon: String
+  key: String!
+  name: String!
+  schema: String!
+}
+
 type Query {
+  allProjects: [Project!]!
   hello(name: String!): String!
   helloWorld: String!
   me: User!
+  projectById(id: String!): Project!
 }
 
 input SignupInput {

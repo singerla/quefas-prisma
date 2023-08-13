@@ -19,9 +19,11 @@ async function bootstrap() {
   // enable shutdown hook
   app.enableShutdownHooks();
 
+  // Need to disable PrismaClientExceptionFilter, does not work with multi-clients
+  // Error: "Right-hand side of 'instanceof' is not an object"
   // Prisma Client Exception Filter for unhandled exceptions
-  const { httpAdapter } = app.get(HttpAdapterHost);
-  app.useGlobalFilters(new PrismaClientExceptionFilter(httpAdapter));
+  // const { httpAdapter } = app.get(HttpAdapterHost);
+  // app.useGlobalFilters(new PrismaClientExceptionFilter(httpAdapter));
 
   const configService = app.get(ConfigService);
   const nestConfig = configService.get<NestConfig>('nest');
@@ -46,5 +48,15 @@ async function bootstrap() {
   }
 
   await app.listen(process.env.PORT || nestConfig.port || 3000);
+
+  const url = await app.getUrl();
+  return url;
 }
-bootstrap();
+bootstrap()
+  .then((url) => {
+    console.log(`Application is running on: ${url}`);
+  })
+  .catch((err) => {
+    console.error(err);
+    process.exit(1);
+  });

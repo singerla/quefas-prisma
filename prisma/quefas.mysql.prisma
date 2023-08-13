@@ -1,11 +1,11 @@
 datasource db {
   provider = "mysql"
-  url      = env("DATABASE_URL_PROJECT")
+  url      = env("DATABASE_URL_QUEFAS")
 }
 
 generator client {
   provider = "prisma-client-js"
-  // output   = "prisma-client"
+  output   = "../node_modules/@quefas/prisma-quefas"
   // previewFeatures = []
 }
 

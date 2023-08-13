@@ -1,0 +1,45 @@
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL_PROJECTS")
+}
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/@quefas/prisma-projects"
+  // previewFeatures = []
+}
+
+// generator dbml {
+//  provider = "prisma-dbml-generator"
+//}
+
+// generator typegraphql {
+//  provider = "typegraphql-prisma-nestjs"
+//  output   = "../src/generated/user"
+//}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  firstname String?
+  lastname  String?
+  password  String
+  icon      String?
+  color     String?
+  isAdmin   Boolean? @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}
+
+model Project {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  key       String   @unique @db.VarChar(64)
+  color     String?
+  db        String?  @db.VarChar(255)
+  schema    String?  @db.VarChar(255)
+  icon      String?
+  params    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}

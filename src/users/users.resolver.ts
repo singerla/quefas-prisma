@@ -1,4 +1,3 @@
-import { PrismaService } from 'nestjs-prisma';
 import {
   Resolver,
   Query,
@@ -18,10 +17,7 @@ import { UpdateUserInput } from './dto/update-user.input';
 @Resolver(() => User)
 @UseGuards(GqlAuthGuard)
 export class UsersResolver {
-  constructor(
-    private usersService: UsersService,
-    private prisma: PrismaService
-  ) {}
+  constructor(private usersService: UsersService) {}
 
   @Query(() => User)
   async me(@UserEntity() user: User): Promise<User> {

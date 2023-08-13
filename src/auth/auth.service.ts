@@ -1,11 +1,14 @@
-import { PrismaService } from 'nestjs-prisma';
-import { Prisma } from '@prisma/client';
+import {
+  Prisma,
+  PrismaClient as PrismaClientProjects,
+} from '@quefas/prisma-projects';
 import {
   Injectable,
   NotFoundException,
   BadRequestException,
   ConflictException,
   UnauthorizedException,
+  Inject,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
@@ -13,31 +16,28 @@ import { PasswordService } from './password.service';
 import { SignupInput } from './dto/signup.input';
 import { Token } from './models/token.model';
 import { SecurityConfig } from '../common/configs/config.interface';
-import { Quefas } from '../common/quefas';
-import { ElementItem } from '../common/quefas/element';
+import { User } from '../users/models/user.model';
 
 @Injectable()
 export class AuthService {
-  que: Quefas;
-
   constructor(
+    private prisma: PrismaClientProjects,
     private readonly jwtService: JwtService,
-    private readonly prisma: PrismaService,
     private readonly passwordService: PasswordService,
     private readonly configService: ConfigService
-  ) {
-    this.que = new Quefas(this.prisma);
-  }
-
+  ) {}
   async createUser(payload: SignupInput): Promise<Token> {
     const hashedPassword = await this.passwordService.hashPassword(
       payload.password
     );
 
     try {
-      const user = await this.que.createElement(payload.email, 'User');
-
-      await user.updateParam('password', hashedPassword);
+      const user = await this.prisma.user.create({
+        data: {
+          ...payload,
+          password: hashedPassword,
+        },
+      });
 
       return this.generateTokens({
         userId: user.id,
@@ -54,7 +54,7 @@ export class AuthService {
   }
 
   async login(email: string, password: string): Promise<Token> {
-    const user = await this.que.getElement(email);
+    const user = await this.prisma.user.findUnique({ where: { email } });
 
     if (!user) {
       throw new NotFoundException(`No user found for email: ${email}`);
@@ -62,7 +62,7 @@ export class AuthService {
 
     const passwordValid = await this.passwordService.validatePassword(
       password,
-      user.getParam('password')
+      user.password
     );
 
     if (!passwordValid) {
@@ -74,13 +74,13 @@ export class AuthService {
     });
   }
 
-  validateUser(userId: string): Promise<ElementItem> {
-    return this.que.getElementById(userId);
+  validateUser(userId: string): Promise<User> {
+    return this.prisma.user.findUnique({ where: { id: userId } });
   }
 
-  getUserFromToken(token: string): Promise<ElementItem> {
-    const userId = this.jwtService.decode(token)['userId'];
-    return this.que.getElementById(userId);
+  getUserFromToken(token: string): Promise<User> {
+    const id = this.jwtService.decode(token)['userId'];
+    return this.prisma.user.findUnique({ where: { id } });
   }
 
   generateTokens(payload: { userId: string }): Token {

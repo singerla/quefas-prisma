@@ -1,5 +1,8 @@
 import { Field, ObjectType, ID } from '@nestjs/graphql';
 
+export type ID = string;
+export type IDCollection = { id: ID }[];
+
 @ObjectType({ isAbstract: true })
 export abstract class BaseModel {
   @Field(() => ID)

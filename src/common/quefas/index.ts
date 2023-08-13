@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@quefas/prisma-quefas';
 import { QuefasElement } from './element';
 import { QuefasCategory } from './category';
 

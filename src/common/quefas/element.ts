@@ -1,14 +1,13 @@
-import { Element as PrismaElement, PrismaClient } from '@prisma/client';
+import { Element as PrismaElement, PrismaClient } from '@quefas/prisma-quefas';
 import { CategoryItem } from './category';
 import { QuefasAspect } from './aspect';
 import { QuefasAttribute } from './attribute';
-import { JsonValue } from '@prisma/client/runtime/library';
 
 export interface ElementItem {
   id: string;
   name: string;
   category: CategoryItem;
-  params: JsonValue;
+  params: string;
   setParam: (key: string, value: any) => ElementItem;
   updateParam: (key: string, value: any) => Promise<ElementItem>;
   update: () => Promise<ElementItem>;
@@ -35,7 +34,7 @@ export class QuefasElement {
     const item: ElementItem = {
       id: element.id,
       name: element.name,
-      params: element.params,
+      params: element.params as any,
       category: category,
       updateAttribute: async (aspect: string, value: any, name?: string) => {
         await this.updateAttribute(aspect, value, item, name);

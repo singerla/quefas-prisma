@@ -1,41 +1,30 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@quefas/prisma-projects';
 
 const prisma = new PrismaClient();
 
 async function main() {
-  await prisma.element.deleteMany();
+  await prisma.user.deleteMany();
 
   console.log('Seeding...');
 
-  const password = await prisma.aspect.create({
+  const user1 = await prisma.user.create({
     data: {
-      name: 'password',
+      email: 'lisa@simpson.com',
+      firstname: 'Lisa',
+      lastname: 'Simpson',
+      password: '$2b$10$EpRnTzVlqHNP0.fUbXUwSOyuiXe/QLSUG6xNekdHgTGmrpHEfIoxm', // secret42
+    },
+  });
+  const user2 = await prisma.user.create({
+    data: {
+      email: 'bart@simpson.com',
+      firstname: 'Bart',
+      lastname: 'Simpson',
+      password: '$2b$10$EpRnTzVlqHNP0.fUbXUwSOyuiXe/QLSUG6xNekdHgTGmrpHEfIoxm', // secret42
     },
   });
 
-  const user = await prisma.category.create({
-    data: {
-      name: 'User',
-      aspects: {
-        connect: password,
-      },
-    },
-  });
-
-  const user1 = await prisma.element.create({
-    data: {
-      name: 'lisa@simpson.com',
-      categoryId: user.id,
-      attributes: {
-        create: {
-          aspectId: password.id,
-          name: '$2b$10$EpRnTzVlqHNP0.fUbXUwSOyuiXe/QLSUG6xNekdHgTGmrpHEfIoxm', // secret42,
-        },
-      },
-    },
-  });
-
-  console.log({ user1 });
+  console.log({ user1, user2 });
 }
 
 main()

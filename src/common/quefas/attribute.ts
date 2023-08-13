@@ -1,5 +1,7 @@
-import { Attribute as PrismaAttribute } from '.prisma/client';
-import { PrismaClient } from '@prisma/client';
+import {
+  PrismaClient,
+  Attribute as PrismaAttribute,
+} from '@quefas/prisma-quefas';
 import { AspectItem } from './aspect';
 import { ElementItem } from './element';
 
